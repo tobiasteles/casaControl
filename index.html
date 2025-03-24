@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão Financeira Familiar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="renda-container">
+      <input type="number" id="renda-input" placeholder="Renda Mensal" step="0.01">
+      <button onclick="salvarRenda()">Salvar</button>
+    </div>
+    <h1><i class="fas fa-coins"></i> Gestão Financeira Familiar</h1>
+    <div class="periodo">
+      <select id="mes">
+        <option value="1">Janeiro</option>
+        <option value="2">Fevereiro</option>
+        <option value="3">Março</option>
+        <option value="4">Abril</option>
+        <option value="5">Maio</option>
+        <option value="6">Junho</option>
+        <option value="7">Julho</option>
+        <option value="8">Agosto</option>
+        <option value="9">Setembro</option>
+        <option value="10">Outubro</option>
+        <option value="11">Novembro</option>
+        <option value="12">Dezembro</option>
+      </select>
+      <input type="number" id="ano" value="2025">
+    </div>
+  </header>
+
+  <main>
+    <section class="adicionar-transacao">
+      <h2>Adicionar Transação</h2>
+      <div class="botoes-tipo">
+        <button class="ativo" data-tipo="gasto">Gasto</button>
+        <button data-tipo="renda">Renda</button>
+      </div>
+
+      <!-- Select de categoria único, para gastos -->
+      <select id="categoria" name="categoria">
+        <option value="">Categoria</option>
+        <option>Aluguel</option>
+        <option>Alimentação</option>
+        <option>Gasolina</option>
+        <option>Saúde</option>
+        <option>Energia Elétrica</option>
+        <option>Pet</option>
+        <option>MEI</option>
+        <option>Telefone</option>
+        <option>Terapia</option>
+        <option>Barbeiro</option>
+        <option>Lazer</option>
+        <option>Investimento</option>
+        <option>Compras Longo Prazo</option>
+      </select>
+
+      <form id="form-gasto" class="form-ativo">
+        <input type="text" name="descricao" placeholder="Descrição" required>
+<input type="number" name="valor" placeholder="Valor" step="0.01" required>
+<select name="categoria" id="categoria">
+        <!-- Removeu o select duplicado -->
+        <button type="submit">Adicionar Gasto</button>
+      </form>
+
+      <form id="form-renda">
+        <input type="text" name="fonte" placeholder="Fonte da Renda" required>
+<input type="number" name="valor" placeholder="Valor" step="0.01" required>
+        <button type="submit">Adicionar Renda</button>
+      </form>
+    </section>
+
+    <section class="resumo">
+      <div class="resumo-item">
+        <h3>Total Gasto</h3>
+        <p class="valor-gasto">R$ 0,00</p>
+      </div>
+      <div class="resumo-item">
+        <h3>Total Renda</h3>
+        <p class="valor-renda">R$ 0,00</p>
+      </div>
+      <div class="resumo-item">
+        <h3>Saldo Restante</h3>
+        <p class="saldo">R$ 0,00</p>
+      </div>
+      <div class="resumo-item">
+        <h3>Guardar</h3>
+        <p class="guardar">R$ 0,00</p>
+      </div>
+    </section>
+
+    <section class="grafico">
+      <h2>Distribuição de Gastos</h2>
+      <canvas id="grafico-gastos"></canvas>
+    </section>
+
+    <section class="ultimas-transacoes">
+      <h2>Últimas Transações</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Descrição</th>
+            <th>Categoria</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody id="lista-transacoes">
+          <!-- Transações serão adicionadas via JavaScript -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+  <footer>
+    <div class="footer-content">
+      <p>Gestão Financeira Familiar v1.0</p>
+      <p>Desenvolvido com <i class="fas fa-heart" style="color: #FACC15;"></i> para famílias organizadas</p>
+      <p>© 2025 - Todos os direitos reservados</p>
+    </div>
+  </footer>
+</body>
+</html>
