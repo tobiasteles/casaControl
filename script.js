@@ -1,280 +1,247 @@
-// Dados iniciais e configuração
-let transacoes = JSON.parse(localStorage.getItem('transacoes')) || [];
-let rendaMensal = parseFloat(localStorage.getItem('rendaMensal')) || 0;
-
-const orcamentoBase = {
-  'Aluguel': 30,
-  'Alimentação': 15,
-  'Gasolina': 8,
-  'Saúde': 5,
-  'Energia Elétrica': 3,
-  'Pet': 3,
-  'MEI': 4,
-  'Telefone': 3,
-  'Terapia': 5,
-  'Streaming': 2,
-  'Barbeiro': 2,
-  'Lazer': 5,
-  'Investimento': 15,
-  'Compras Longo Prazo': 0 // Não entra no cálculo padrão
+   // Configuração do Firebase
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBVAqR7ZnzRZ7OETBtKFFeWOJxs1SotCoY",
+  authDomain: "casacontrol-c8b16.firebaseapp.com",
+  projectId: "casacontrol-c8b16",
+  storageBucket: "casacontrol-c8b16.firebasestorage.app",
+  messagingSenderId: "353427490780",
+  appId: "1:353427490780:web:6fb383c3c83faad3ab3119",
+  measurementId: "G-YQF4XQ5VQ5"
 };
 
-// Elementos do DOM
-const forms = {
-  gasto: document.getElementById('form-gasto'),
-  renda: document.getElementById('form-renda')
-};
+    // Inicialização do Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const budgetRef = db.collection('budgets').doc('current');
 
-// Inicialização
-document.addEventListener('DOMContentLoaded', () => {
-  const rendaInput = document.getElementById('renda-input');
-  if (rendaInput) {
-    rendaInput.value = rendaMensal;
-  }
-  atualizarTudo();
-});
-
-// Salvar renda mensal e atualizar interface
-function salvarRenda() {
-  const rendaInput = document.getElementById('renda-input');
-  rendaMensal = parseFloat(rendaInput.value) || 0;
-  localStorage.setItem('rendaMensal', rendaMensal);
-  atualizarTudo();
-}
-
-// Função principal para adicionar transação
-function adicionarTransacao(tipo, dados) {
-  const transacao = {
-    id: Date.now(),
-    tipo,
-    ...dados,
-    data: new Date().toLocaleDateString('pt-BR'),
-    parcelamento: dados.parcelamento || null
-  };
-
-  transacoes.push(transacao);
-  localStorage.setItem('transacoes', JSON.stringify(transacoes));
-  atualizarTudo();
-}
-
-// Calcula os totais considerando a renda mensal inicial + receitas
-function calcularTotais() {
-  const totalGasto = transacoes
-    .filter(t => t.tipo === 'gasto')
-    .reduce((sum, t) => sum + t.valor, 0);
-
-  const totalRendaTransacoes = transacoes
-    .filter(t => t.tipo === 'renda')
-    .reduce((sum, t) => sum + t.valor, 0);
-
-  const totalRenda = rendaMensal + totalRendaTransacoes;
-  return { totalGasto, totalRenda, saldo: totalRenda - totalGasto };
-}
-
-// Calcula os limites reais para cada categoria
-function calcularLimites() {
-  return Object.fromEntries(
-    Object.entries(orcamentoBase).map(([categoria, porcentagem]) => [
-      categoria,
-      (rendaMensal * porcentagem) / 100
-    ])
-  );
-}
-
-// Verifica orçamentos por categoria
-function verificarOrcamentos() {
-  const limites = calcularLimites();
-  const gastosPorCategoria = transacoes
-    .filter(t => t.tipo === 'gasto' && t.categoria in limites)
-    .reduce((acc, t) => {
-      acc[t.categoria] = (acc[t.categoria] || 0) + t.valor;
-      return acc;
-    }, {});
-
-  return Object.entries(gastosPorCategoria).map(([categoria, total]) => {
-    const limite = limites[categoria];
-    const porcentagem = (total / limite) * 100;
-    return {
-      categoria,
-      total,
-      limite,
-      porcentagem: Math.min(porcentagem, 100),
-      excedido: porcentagem > 100
+    // Configuração das categorias e limites
+    const categories = {
+        'Aluguel': 0.3,
+        'Alimentação': 0.15,
+        'Gasolina': 0.08,
+        'Saúde': 0.05,
+        'Energia Elétrica': 0.03,
+        'Pet': 0.03,
+        'MEI': 0.04,
+        'Telefone': 0.03,
+        'Terapia': 0.05,
+        'Streaming': 0.02,
+        'Barbeiro': 0.02,
+        'Lazer': 0.05
     };
-  });
-}
 
-// Atualiza toda a interface
-function atualizarTudo() {
-  const { totalGasto, totalRenda, saldo } = calcularTotais();
-  const metaGuardar = saldo * 0.2; // 20% do saldo
+    let chartInstance = null;
 
-  document.querySelector('.valor-gasto').textContent = `R$ ${totalGasto.toFixed(2)}`;
-  document.querySelector('.valor-renda').textContent = `R$ ${totalRenda.toFixed(2)}`;
-  document.querySelector('.saldo').textContent = `R$ ${saldo.toFixed(2)}`;
-  document.querySelector('.guardar').textContent = `R$ ${metaGuardar.toFixed(2)}`;
+    // Função para formatar valores monetários
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(value);
+    };
 
-  atualizarTabela();
-  atualizarGrafico();
-  verificarLimitesOrcamento();
-}
-
-// Atualiza a tabela de transações
-function atualizarTabela() {
-  const tbody = document.getElementById('lista-transacoes');
-  tbody.innerHTML = '';
-
-  transacoes.forEach(transacao => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${transacao.data}</td>
-      <td>${transacao.descricao} ${transacao.parcelamento ? 
-        `(${transacao.parcelamento.pagas}/${transacao.parcelamento.total})` : ''}</td>
-      <td>${transacao.categoria || '-'}</td>
-      <td class="${transacao.tipo}">R$ ${transacao.valor.toFixed(2)}</td>
-    `;
-    tbody.appendChild(row);
-  });
-}
-
-// Atualiza gráfico de gastos
-function atualizarGrafico() {
-    const ctx = document.getElementById('grafico-gastos').getContext('2d');
-    const gastos = transacoes.filter(t => t.tipo === 'gasto');
-    
-    // Agrupar por categoria
-    const categorias = gastos.reduce((acc, transacao) => {
-        acc[transacao.categoria] = (acc[transacao.categoria] || 0) + transacao.valor;
-        return acc;
-    }, {});
-
-    if (Object.keys(categorias).length === 0) {
-        if (window.grafico) window.grafico.destroy();
-        return; // Não criar gráfico se não houver categorias
-    }
-
-    if (window.grafico) window.grafico.destroy();
-    
-    window.grafico = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: Object.keys(categorias),
-            datasets: [{
-                data: Object.values(categorias),
-                backgroundColor: Object.keys(categorias).map((_, i) => 
-                    `hsl(${i * 360 / Object.keys(categorias).length}, 70%, 50%)`
-                )
-            }]
-        }
-    });
-}
-// Verifica limites e atualiza visualmente na tabela
-function verificarLimitesOrcamento() {
-    const analise = verificarOrcamentos();
-  
-    analise.forEach(item => {
-      const tabela = document.getElementById('lista-transacoes');
-      const elementos = tabela.querySelectorAll('td'); // Filtrar apenas na tabela correta
-      elementos.forEach(td => {
-        if (td.textContent.includes(item.categoria)) {
-          let row = td.closest('tr');
-          let progressBar = row.querySelector('.progress-bar');
-          if (!progressBar) {
-            const container = criarProgressBar();
-            row.appendChild(container);
-            progressBar = container.querySelector('.progress-bar');
-          }
-          progressBar.style.width = `${item.porcentagem}%`;
-          progressBar.style.backgroundColor = item.excedido ? '#dc2626' : '#16A34A';
-  
-          if (item.excedido) {
-            row.classList.add('excedido');
-            td.innerHTML = `${item.categoria} <br><small>Limite: R$${item.limite.toFixed(2)}</small>`;
-          }
-        }
-      });
-    });
-  }
-
-// Cria um elemento de progress bar
-function criarProgressBar() {
-  const container = document.createElement('div');
-  container.className = 'progress-container';
-  const bar = document.createElement('div');
-  bar.className = 'progress-bar';
-  container.appendChild(bar);
-  return container;
-}
-
-// Event Listener para formulário de gastos
-forms.gasto.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    
-    const descricao = formData.get('descricao');
-    const valor = parseFloat(formData.get('valor'));
-    const categoria = formData.get('categoria');
-    
-    if (!descricao || isNaN(valor) || valor <= 0 || !categoria) {
-        alert('Preencha todos os campos obrigatórios com valores válidos!');
-        return;
-    }
-
-    adicionarTransacao('gasto', {
-        descricao,
-        valor,
-        categoria,
-        parcelamento: formData.has('parcelamento-total') ? {
-            total: parseInt(formData.get('parcelamento-total')),
-            pagas: parseInt(formData.get('parcelamento-pagas')) || 0
-        } : null
+    // Monitorar alterações no banco de dados em tempo real
+    budgetRef.onSnapshot((doc) => {
+        const data = doc.data() || {};
+        updateSummary(data);
+        updateExpensesList(data.expenses || []);
+        updateChart(data);
     });
 
-    e.target.reset();
-});
+// Dentro do script.js
 
-forms.renda.addEventListener('submit', (e) => {
+// CADASTRO DE RENDAS (Código corrigido)
+document.getElementById('incomeForm').addEventListener('submit', (e) => {
   e.preventDefault();
-  const formData = new FormData(e.target);
-  const descricao = formData.get('descricao');
-  const valor = parseFloat(formData.get('valor'));
-
-  if (!descricao || isNaN(valor) || valor <= 0) {
-      alert('Preencha todos os campos obrigatórios com valores válidos!');
-      return;
-  }
-
-  adicionarTransacao('renda', { descricao, valor });
-  e.target.reset();
-});
-// Event Listener para formulário de renda
-forms.renda.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  const descricao = formData.get('descricao');
-  const valor = parseFloat(formData.get('valor'));
-
-  adicionarTransacao('renda', { descricao, valor });
+  
+  const husbandIncome = parseFloat(document.getElementById('husbandIncome').value);
+  const wifeIncome = parseFloat(document.getElementById('wifeIncome').value);
+  
+  // REMOVA A LINHA DO expenses
+  budgetRef.set({
+      husbandIncome,
+      wifeIncome
+  }, { merge: true });
+  
+  showAlert('Rendas salvas com sucesso!', '#16A34A');
   e.target.reset();
 });
 
-// Adiciona campos de parcelamento dinamicamente se o select externo mudar
-const selectElem = document.getElementById('categoria');
-if (selectElem) {
-  selectElem.addEventListener('change', function() {
-    let parcelamentoDiv = document.getElementById('parcelamento-fields');
-    if (this.value === 'Compras Longo Prazo') {
-      if (!parcelamentoDiv) {
-        parcelamentoDiv = document.createElement('div');
-        parcelamentoDiv.id = 'parcelamento-fields';
-        parcelamentoDiv.innerHTML = `
-          <input type="number" placeholder="Total de Parcelas" name="parcelamento-total" min="1" required>
-          <input type="number" placeholder="Parcelas Pagas" name="parcelamento-pagas" min="0" required>
-        `;
-        forms.gasto.insertBefore(parcelamentoDiv, forms.gasto.lastElementChild);
-      }
-    } else if (parcelamentoDiv) {
-      parcelamentoDiv.remove();
+    // Cadastro de Despesas
+    document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const name = document.getElementById('expenseName').value.trim();
+        const value = parseFloat(document.getElementById('expenseValue').value);
+        const category = document.getElementById('expenseCategory').value;
+
+        if (!name || isNaN(value) || !category) {
+            showAlert('Preencha todos os campos corretamente!', '#F97316');
+            return;
+        }
+
+        const doc = await budgetRef.get();
+        const data = doc.data() || {};
+        const totalIncome = (data.husbandIncome || 0) + (data.wifeIncome || 0);
+
+        if (totalIncome === 0) {
+            showAlert('Cadastre as rendas primeiro!', '#F97316');
+            return;
+        }
+
+        // Verificação de limite da categoria
+        const limit = totalIncome * categories[category];
+        const currentExpenses = data.expenses || [];
+        const categoryTotal = currentExpenses
+            .filter(e => e.category === category)
+            .reduce((sum, e) => sum + e.value, 0);
+
+        if ((categoryTotal + value) > limit) {
+            const exceeded = (categoryTotal + value) - limit;
+            showAlert(`Limite de ${category} excedido em ${formatCurrency(exceeded)}!`, '#FACC15');
+        }
+
+        // Adicionar despesa
+        budgetRef.update({
+            expenses: firebase.firestore.FieldValue.arrayUnion({
+                name,
+                value,
+                category,
+                date: new Date().toISOString()
+            })
+        });
+
+        showAlert('Despesa adicionada com sucesso!', '#16A34A');
+        e.target.reset();
+    });
+
+    // Atualizar resumo financeiro
+    function updateSummary(data) {
+        const totalIncome = (data.husbandIncome || 0) + (data.wifeIncome || 0);
+        const totalExpenses = (data.expenses || []).reduce((sum, e) => sum + e.value, 0);
+        
+        document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
+        document.getElementById('totalExpenses').textContent = formatCurrency(totalExpenses);
+        document.getElementById('remaining').textContent = formatCurrency(totalIncome - totalExpenses);
     }
-  });
-}
+
+    // Atualizar lista de despesas
+    function updateExpensesList(expenses) {
+        const list = document.getElementById('expensesList');
+        list.innerHTML = '';
+        
+        expenses.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(expense => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div>
+                    <strong>${expense.name}</strong>
+                    <span>${expense.category}</span>
+                </div>
+                <div>
+                    ${formatCurrency(expense.value)}
+                    <small>${new Date(expense.date).toLocaleDateString()}</small>
+                </div>
+            `;
+            list.appendChild(li);
+        });
+    }
+
+    // Atualizar gráfico
+    function updateChart(data) {
+        const ctx = document.getElementById('chart').getContext('2d');
+        const totalIncome = (data.husbandIncome || 0) + (data.wifeIncome || 0);
+        const expenses = data.expenses || [];
+
+        const labels = Object.keys(categories);
+        const actual = labels.map(cat => 
+            expenses.filter(e => e.category === cat)
+                   .reduce((sum, e) => sum + e.value, 0)
+        );
+        const limits = labels.map(cat => totalIncome * categories[cat]);
+
+        if (chartInstance) chartInstance.destroy();
+
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Gasto Real',
+                    data: actual,
+                    backgroundColor: '#F97316',
+                    borderRadius: 4
+                }, {
+                    label: 'Limite',
+                    data: limits,
+                    backgroundColor: '#2563EB',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: '#1E3A8A',
+                            font: {
+                                family: 'Montserrat'
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#1E3A8A',
+                            callback: (value) => formatCurrency(value)
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#1E3A8A',
+                            font: {
+                                family: 'Montserrat'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Mostrar alertas personalizados
+    function showAlert(message, color) {
+        const alert = document.createElement('div');
+        alert.style.position = 'fixed';
+        alert.style.top = '20px';
+        alert.style.right = '20px';
+        alert.style.padding = '15px 25px';
+        alert.style.borderRadius = '8px';
+        alert.style.background = color;
+        alert.style.color = color === '#FACC15' ? '#1E3A8A' : 'white';
+        alert.style.fontFamily = 'Montserrat';
+        alert.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+        alert.textContent = message;
+
+        document.body.appendChild(alert);
+
+        setTimeout(() => {
+            alert.remove();
+        }, 3000);
+    }
+
+    // Inicialização inicial
+    budgetRef.get().then(doc => {
+        if (!doc.exists) {
+            budgetRef.set({
+                husbandIncome: 0,
+                wifeIncome: 0,
+                expenses: []
+            });
+        }
+    });
+
+    
