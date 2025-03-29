@@ -1,114 +1,116 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-    <title>Gestão de Despesas Familiares</title>
-    <!-- Links para bibliotecas externas -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador Financeiro Doméstico</title>
     <link rel="stylesheet" href="style.css">
+
+    <!-- Bootstrap CSS para estilização básica -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
-    <h1>Gestão de Despesas da Família Teles</h1>
-    
-    <div class="container">
-        <!-- Seção de cadastro de renda -->
-        <div class="form-section">
-            <h2>Cadastro de Renda</h2>
-            <form id="incomeForm">
-                <label>Renda do Usuário:</label>
-                <input type="number" id="husbandIncome" required step="0.01">
-                
-                <label>Renda do Cônjuge:</label>
-                <input type="number" id="wifeIncome" required step="0.01">
-                
-                <button type="submit">Salvar Rendas</button>
-            </form>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Gerenciador Financeiro Doméstico</h1>
+
+        <!-- Seção de Renda e Saldo -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">Gerenciamento de Renda</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="incomeForm">
+                            <div class="mb-3">
+                                <label for="monthlyIncome" class="form-label">Renda Mensal</label>
+                                <input type="number" class="form-control" id="monthlyIncome" step="0.01" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Atualizar Renda</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">Saldo Disponível</h5>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="text-center">
+                            R$ <span id="remainingBudget">0.00</span>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de Adicionar Despesas -->
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">Adicionar Despesa</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="expenseForm">
+                            <div class="mb-3">
+                                <label for="expenseName" class="form-label">Nome da Despesa</label>
+                                <input type="text" class="form-control" id="expenseName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="expenseAmount" class="form-label">Valor</label>
+                                <input type="number" class="form-control" id="expenseAmount" step="0.01" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="expenseCategory" class="form-label">Categoria</label>
+                                <select class="form-select" id="expenseCategory" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Alimentação">Alimentação</option>
+                                    <option value="Moradia">Moradia</option>
+                                    <option value="Transporte">Transporte</option>
+                                    <option value="Lazer">Lazer</option>
+                                    <option value="Saúde">Saúde</option>
+                                    <option value="Outros">Outros</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Adicionar Despesa</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Seção de cadastro de despesas -->
-        <div class="form-section">
-            <h2>Cadastro de Despesas</h2>
-            <form id="expenseForm">
-                <label>Nome da Despesa:</label>
-                <input type="text" id="expenseName" required>
-                
-                <label>Valor:</label>
-                <input type="number" id="expenseValue" required step="0.01">
-                
-                <label>Categoria:</label>
-                <select id="expenseCategory" required>
-                    <option value="">Selecione</option>
-                    <option value="Aluguel">Aluguel</option>
-                    <option value="Alimentação">Alimentação</option>
-                    <option value="Gasolina">Gasolina</option>
-                    <option value="Saúde">Saúde</option>
-                    <option value="Energia Elétrica">Energia Elétrica</option>
-                    <option value="Pet">Pet</option>
-                    <option value="MEI">MEI</option>
-                    <option value="Telefone">Telefone</option>
-                    <option value="Terapia">Terapia</option>
-                    <option value="Streaming">Streaming</option>
-                    <option value="Barbeiro">Barbeiro</option>
-                    <option value="Lazer">Lazer</option>
-                </select>
-                
-                <button type="submit">Adicionar Despesa</button>
-            </form>
+        <!-- Lista de Despesas -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Despesas Registradas</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Valor</th>
+                            <th>Categoria</th>
+                            <th>Data</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expenseTableBody">
+                        <!-- As despesas serão inseridas aqui via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+    <script src="script.js"></script>
+    <!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <div class="month-selector">
-        <h2>Seleção de Mês</h2>
-        <div class="month-controls">
-            <select id="monthSelect">
-                <option value="0">Janeiro</option>
-                <option value="1">Fevereiro</option>
-                <option value="2">Março</option>
-                <option value="3">Abril</option>
-                <option value="4">Maio</option>
-                <option value="5">Junho</option>
-                <option value="6">Julho</option>
-                <option value="7">Agosto</option>
-                <option value="8">Setembro</option>
-                <option value="9">Outubro</option>
-                <option value="10">Novembro</option>
-                <option value="11">Dezembro</option>
-            </select>
-            <input type="number" id="yearInput" min="2000" max="2100" step="1">
-            <button onclick="updateMonth()">Atualizar</button>
-        </div>
-    </div>
-
-    <!-- Resumo financeiro -->
-    <div class="summary">
-        <div class="summary-item">
-            <h3>Renda Total</h3>
-            <p id="totalIncome">R$ 0.00</p>
-        </div>
-        <div class="summary-item">
-            <h3>Despesas Totais</h3>
-            <p id="totalExpenses">R$ 0.00</p>
-        </div>
-        <div class="summary-item">
-            <h3>Saldo Restante</h3>
-            <p id="remaining">R$ 0.00</p>
-        </div>
-    </div>
-
-    <!-- Lista de despesas -->
-    <div>
-        <h2>Últimas Despesas</h2>
-        <ul id="expensesList"></ul>
-    </div>
-
-    <!-- Container para o gráfico -->
-    <div id="chartContainer">
-        <canvas id="chart"></canvas>
-    </div>
-
-    
-    <script src="./script.js"></script>
+    <!-- Bootstrap JS e dependências -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
