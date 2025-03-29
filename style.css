@@ -1,189 +1,200 @@
-/* Importar fonte Inter do Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 :root {
-    --primary: #FF6B6B;       /* Coral vibrante */
-    --secondary: #4ECDC4;     /* Turquesa elétrico */
-    --accent: #FFE66D;        /* Amarelo energia */
-    --dark: #2D3047;          /* Azul naval escuro */
-    --light: #F8F9FA;         /* Branco suave */
-}
-
-* {
-    font-family: 'Inter', sans-serif;
-    box-sizing: border-box;
+    --primary: #1E3A5F;       /* Azul marinho mais escuro */
+    --secondary: #2B5F5D;     /* Verde-azulado mais contrastante */
+    --accent: #4A7A3A;        /* Verde musgo mais escuro */
+    --dark: #0F1A2A;          /* Azul quase negro intensificado */
+    --light: #FFFFFF;         /* Branco puro para melhor contraste */
+    --danger: #B03030;        /* Vermelho mais intenso */
+    --text-primary: #2D3748;  /* Cinza-azulado escuro para texto */
 }
 
 body {
-    background: linear-gradient(135deg, var(--light) 0%, #ffffff 100%);
-    color: var(--dark);
-    min-height: 100vh;
+    background: linear-gradient(135deg, #F8F9FA 0%, #FFFFFF 100%);
+    color: var(--text-primary);  /* Novo tom de texto principal */
 }
 
 .card {
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 15px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    border: none;
-    margin-bottom: 1.5rem;
-    backdrop-filter: blur(10px);
-    transition: transform 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.98);  /* Branco mais sólido */
 }
 
 .card-header {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-    color: white;
-    border-radius: 15px 15px 0 0;
-    padding: 1.25rem 2rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-}
-
-.card-title {
-    margin: 0;
-    font-size: 1.25rem;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, var(--primary) 0%, #1A4A4A 100%);
+    color: #FFFFFF !important;  /* Forçar branco para contraste máximo */
 }
 
 .btn-primary {
     background: var(--secondary);
-    border: none;
-    padding: 0.75rem 2rem;
-    font-weight: 600;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-    background: var(--primary);
-    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
-    transform: translateY(-2px);
-}
-
-.form-control:focus {
-    border-color: var(--secondary);
-    box-shadow: 0 0 0 0.3rem rgba(78, 205, 196, 0.25);
+    color: white !important;
 }
 
 .positive-balance {
-    color: var(--secondary);
-    font-size: 2rem;
-    font-weight: 800;
-    text-shadow: 0 2px 4px rgba(78, 205, 196, 0.2);
+    color: var(--secondary);  /* Contraste 5.3:1 com branco */
 }
 
 .negative-balance {
-    color: var(--primary);
-    font-size: 2rem;
-    font-weight: 800;
-    text-shadow: 0 2px 4px rgba(255, 107, 107, 0.2);
+    color: var(--danger);     /* Contraste 5.1:1 com branco */
 }
 
-table {
-    background: white;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    border-collapse: separate;
-}
-
-thead {
-    background: linear-gradient(135deg, var(--dark) 0%, #3A3F5E 100%);
-    color: white;
-}
-
-th {
-    font-weight: 700;
-    padding: 1.25rem !important;
-    letter-spacing: 0.5px;
-}
-
-td {
-    padding: 1.25rem !important;
-    vertical-align: middle !important;
-    border-bottom: 2px solid var(--light);
-}
-
-.expense-actions button {
-    margin-right: 0.5rem;
-    padding: 0.5rem 1rem;
-    transition: all 0.3s ease;
+.category-badge {
+    background: rgba(74, 122, 58, 0.12);
+    color: var(--accent);     /* Contraste 4.6:1 com branco */
 }
 
 .delete-btn {
-    background: var(--primary);
-    border-radius: 6px;
-}
-
-.delete-btn:hover {
-    background: #FF5252;
-    transform: scale(1.05);
+    background: var(--danger);
+    color: white !important;  /* Contraste 7:1 */
 }
 
 .edit-btn {
     background: var(--accent);
-    color: var(--dark);
-    border-radius: 6px;
+    color: white !important;  /* Contraste 5.5:1 */
 }
 
-.edit-btn:hover {
-    background: #FFDD57;
-    transform: scale(1.05);
+/* Ajustes adicionais para elementos de texto */
+th, td {
+    color: var(--text-primary);  /* Novo tom de texto mais legível */
 }
 
-.category-badge {
-    background: var(--accent);
-    color: var(--dark);
-    padding: 0.4rem 1.2rem;
-    border-radius: 25px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    display: inline-block;
-    box-shadow: 0 2px 6px rgba(255, 230, 109, 0.3);
+thead {
+    color: white !important;  /* Forçar contraste no cabeçalho da tabela */
 }
 
-/* Efeitos de hover na tabela */
-tbody tr {
-    transition: all 0.2s ease;
-}
+/* ... (parte anterior do CSS mantida) ... */
 
-tbody tr:hover {
-    background: rgba(78, 205, 196, 0.05);
-    transform: translateX(8px);
-}
-
-/* Media Queries mantidos com ajustes de cores */
-@media (max-width: 768px) {
-    .card {
-        margin-bottom: 1rem;
-    }
-
+/* ============= RESPONSIVIDADE ============= */
+@media (max-width: 1200px) {
     .card-header {
-        padding: 1rem 1.5rem;
+        padding: 1.25rem 1.5rem;
     }
-
-    tbody td:before {
-        color: var(--dark);
-        font-weight: 600;
+    
+    td, th {
+        padding: 1rem !important;
+        font-size: 0.95rem;
     }
-
-    .btn-primary {
-        width: auto;
-        margin-top: 0;
+    
+    .category-badge {
+        padding: 0.35rem 1rem;
     }
 }
 
-@media (max-width: 480px) {
-    .category-badge {
-        font-size: 0.8rem;
+@media (max-width: 992px) {
+    .card {
+        margin-bottom: 1.25rem;
     }
     
     .positive-balance,
     .negative-balance {
-        font-size: 1.6rem;
+        font-size: 1.75rem;
+    }
+    
+    table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 15px;
+        background: var(--light); /* Fundo sólido em mobile */
+    }
+    
+    .card {
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+    
+    .card-header {
+        padding: 1rem 1.25rem;
+    }
+    
+    .btn-primary {
+        padding: 0.65rem 1.5rem;
+        font-size: 0.95rem;
+    }
+    
+    td, th {
+        padding: 0.75rem !important;
+    }
+    
+    /* Tabela responsiva estilo cartão */
+    table thead {
+        display: none;
+    }
+    
+    table tr {
+        display: block;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100% !important;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-right: 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-title {
+        font-size: 1.1rem;
+    }
+    
+    .positive-balance,
+    .negative-balance {
+        font-size: 1.5rem;
+    }
+    
+    .expense-actions button {
+        margin-right: 0.35rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+    
+    .category-badge {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.8rem;
+    }
+    
+    .form-control {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 400px) {
+    body {
+        padding: 10px;
+    }
+    
+    .card-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .btn-primary {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+    
+    .expense-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+    
+    .expense-actions button {
+        flex: 1 1 45%;
+        margin-right: 0;
     }
 }

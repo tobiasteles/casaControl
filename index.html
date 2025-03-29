@@ -1,116 +1,113 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador Financeiro Doméstico</title>
-    <link rel="stylesheet" href="style.css">
-
-    <!-- Bootstrap CSS para estilização básica -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciador Financeiro Doméstico</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">Gerenciador Financeiro Doméstico</h1>
-
-        <!-- Seção de Renda e Saldo -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="card-title">Gerenciamento de Renda</h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="incomeForm">
-                            <div class="mb-3">
-                                <label for="monthlyIncome" class="form-label">Renda Mensal</label>
-                                <input type="number" class="form-control" id="monthlyIncome" step="0.01" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Atualizar Renda</button>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="card-title">Saldo Disponível</h5>
-                    </div>
-                    <div class="card-body">
-                        <h4 class="text-center">
-                            R$ <span id="remainingBudget">0.00</span>
-                        </h4>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Seção de Adicionar Despesas -->
-            <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="card-title">Adicionar Despesa</h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="expenseForm">
-                            <div class="mb-3">
-                                <label for="expenseName" class="form-label">Nome da Despesa</label>
-                                <input type="text" class="form-control" id="expenseName" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="expenseAmount" class="form-label">Valor</label>
-                                <input type="number" class="form-control" id="expenseAmount" step="0.01" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="expenseCategory" class="form-label">Categoria</label>
-                                <select class="form-select" id="expenseCategory" required>
-                                    <option value="">Selecione...</option>
-                                    <option value="Alimentação">Alimentação</option>
-                                    <option value="Moradia">Moradia</option>
-                                    <option value="Transporte">Transporte</option>
-                                    <option value="Lazer">Lazer</option>
-                                    <option value="Saúde">Saúde</option>
-                                    <option value="Outros">Outros</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Adicionar Despesa</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+  <div class="container mt-5">
+    <h1 class="text-center mb-4">Gerenciador Financeiro Doméstico</h1>
+    <!-- Seção de Renda e Saldo -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="card-title">Gerenciamento de Renda</h5>
+          </div>
+          <div class="card-body">
+            <form id="incomeForm">
+              <div class="mb-3">
+                <label for="monthlyIncome" class="form-label">Renda Mensal</label>
+                <input type="number" class="form-control" id="monthlyIncome" step="0.01" required>
+              </div>
+              <button type="submit" class="btn btn-primary">Atualizar Renda</button>
+            </form>
+          </div>
         </div>
-
-        <!-- Lista de Despesas -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title">Despesas Registradas</h5>
-            </div>
-            <div class="card-body">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Valor</th>
-                            <th>Categoria</th>
-                            <th>Data</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="expenseTableBody">
-                        <!-- As despesas serão inseridas aqui via JavaScript -->
-                    </tbody>
-                </table>
-            </div>
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="card-title">Saldo Disponível</h5>
+          </div>
+          <div class="card-body">
+            <h4 class="text-center">
+              R$ <span id="remainingBudget">0.00</span>
+            </h4>
+          </div>
         </div>
+      </div>
+      <!-- Seção de Adicionar Despesas -->
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="card-title">Adicionar Despesa</h5>
+          </div>
+          <div class="card-body">
+            <form id="expenseForm">
+              <div class="mb-3">
+                <label for="expenseName" class="form-label">Nome da Despesa</label>
+                <input type="text" class="form-control" id="expenseName" required>
+              </div>
+              <div class="mb-3">
+                <label for="expenseAmount" class="form-label">Valor</label>
+                <input type="number" class="form-control" id="expenseAmount" step="0.01" required>
+              </div>
+              <div class="mb-3">
+                <label for="expenseCategory" class="form-label">Categoria</label>
+                <select id="expenseCategory" class="form-select" required>
+                  <!-- Os values DEVEM corresponder exatamente às chaves do categoryLimits -->
+                  <option value="Aluguel">Aluguel</option>
+                  <option value="Alimentação">Alimentação</option>
+                  <option value="Gasolina">Gasolina</option>
+                  <option value="Saúde">Saúde</option>
+                  <option value="Energia Elétrica">Energia Elétrica</option>
+                  <option value="Pet">Pet</option>
+                  <option value="MEI">MEI</option>
+                  <option value="Telefone">Telefone</option>
+                  <option value="Terapia">Terapia</option>
+                  <option value="Streaming">Streaming</option>
+                  <option value="Barbeiro">Barbeiro</option>
+                  <option value="Lazer">Lazer</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary">Adicionar Despesa</button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
-    <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-<!-- Seu arquivo JavaScript -->
-<script src="script.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Lista de Despesas -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Despesas Registradas</h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Valor</th>
+              <th>Categoria</th>
+              <th>Data</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="expenseTableBody">
+            <!-- As despesas serão inseridas aqui via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <!-- Seu arquivo JavaScript -->
+  <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
