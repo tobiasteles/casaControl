@@ -1,18 +1,17 @@
+// Configuração do Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyBVAqR7ZnzRZ7OETBtKFFeWOJxs1SotCoY",
+    authDomain: "casacontrol-c8b16.firebaseapp.com",
+    projectId: "casacontrol-c8b16", // Corrigi o projectId
+    storageBucket: "casacontrol-c8b16.firebasestorage.app",
+    messagingSenderId: "353427490780",
+    appId: "1:353427490780:web:6fb383c3c83faad3ab3119",
+    measurementId: "G-YQF4XQ5VQ5"
+};
 
-    // Inicialização do Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyBVAqR7ZnzRZ7OETBtKFFeWOJxs1SotCoY",
-        authDomain: "casacontrol-c8b16.firebaseapp.com",
-        projectId: "casacontrol-c8b16",
-        storageBucket: "casacontrol-c8b16.firebasestorage.app",
-        messagingSenderId: "353427490780",
-        appId: "1:353427490780:web:6fb383c3c83faad3ab3119",
-        measurementId: "G-YQF4XQ5VQ5"
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+// Inicialização do Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
     // Referências aos elementos do DOM
     const incomeForm = document.getElementById('incomeForm');
