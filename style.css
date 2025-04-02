@@ -59,6 +59,20 @@ thead {
     color: white !important;  /* Forçar contraste no cabeçalho da tabela */
 }
 
+.negative-limit {
+    color: #dc3545;
+    font-weight: bold;
+  }
+  
+  .category-limit-table td {
+    vertical-align: middle;
+  }
+  
+  .progress {
+    height: 5px;
+    margin-top: 5px;
+  }
+
 /* ... (parte anterior do CSS mantida) ... */
 
 /* ============= RESPONSIVIDADE ============= */

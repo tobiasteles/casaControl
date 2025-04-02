@@ -19,10 +19,12 @@ const expenseForm = document.getElementById('expenseForm');
 const monthlyIncomeInput = document.getElementById('monthlyIncome');
 const remainingBudget = document.getElementById('remainingBudget');
 const expenseTableBody = document.getElementById('expenseTableBody');
+const categoryBody = document.getElementById('categoryTableBody');
 
 // Variáveis globais
 let currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
 let totalExpenses = 0;
+window.categoryTotals = {};
 
 // Referência ao Firestore
 const budgetRef = db.collection('budgets').doc(currentMonth);
@@ -44,12 +46,34 @@ const categoryLimits = {
     'Lazer': 0.05
 };
 
+// Função para atualizar a tabela de categorias
+function updateCategoryTable(income) {
+    categoryBody.innerHTML = '';
+    for (const [category, percentage] of Object.entries(categoryLimits)) {
+        const row = document.createElement('tr');
+        const categoryTotal = window.categoryTotals?.[category] || 0;
+        const categoryLimit = income * percentage;
+        const remaining = categoryLimit - categoryTotal;
+        
+        row.innerHTML = `
+            <td>${category}</td>
+            <td>R$ ${categoryLimit.toFixed(2)}</td>
+            <td>R$ ${categoryTotal.toFixed(2)}</td>
+            <td class="${remaining < 0 ? 'negative-limit' : ''}">
+                R$ ${remaining.toFixed(2)}
+            </td>
+        `;
+        categoryBody.appendChild(row);
+    }
+}
+
 // Monitorar alterações na renda
 budgetRef.onSnapshot((doc) => {
     if (doc.exists) {
         const data = doc.data();
         monthlyIncomeInput.value = data.income || 0;
         calculateRemainingBudget(data.income, totalExpenses);
+        if (data.income) updateCategoryTable(data.income);
     }
 });
 
@@ -57,28 +81,27 @@ budgetRef.onSnapshot((doc) => {
 expensesRef.onSnapshot((querySnapshot) => {
     totalExpenses = 0;
     expenseTableBody.innerHTML = '';
-    let categoryTotals = {};
+    window.categoryTotals = {};
 
     querySnapshot.forEach((doc) => {
         const expense = doc.data();
         totalExpenses += expense.amount;
         
-        if (categoryTotals[expense.category]) {
-            categoryTotals[expense.category] += expense.amount;
+        if (window.categoryTotals[expense.category]) {
+            window.categoryTotals[expense.category] += expense.amount;
         } else {
-            categoryTotals[expense.category] = expense.amount;
+            window.categoryTotals[expense.category] = expense.amount;
         }
         
         addExpenseToTable({ id: doc.id, ...expense });
     });
 
     budgetRef.get().then(doc => {
-        if (doc.exists) {
+        if (doc.exists && doc.data().income) {
             calculateRemainingBudget(doc.data().income, totalExpenses);
+            updateCategoryTable(doc.data().income);
         }
     });
-
-    window.categoryTotals = categoryTotals;
 });
 
 // Formulário de Renda
@@ -124,9 +147,7 @@ expenseForm.addEventListener('submit', async (e) => {
     const currentTotal = window.categoryTotals?.[expense.category] || 0;
 
     if ((currentTotal + expense.amount) > maxAllowed) {
-        const exceeded = (currentTotal + expense.amount - maxAllowed).toFixed(2);
-        alert(`Limite da categoria ${expense.category} excedido em R$ ${exceeded}!
-Máximo permitido: R$ ${maxAllowed.toFixed(2)} (${categoryLimits[expense.category] * 100}% da renda)`);
+        alert(`Limite da categoria ${expense.category} excedido!`);
         return;
     }
 
@@ -135,7 +156,6 @@ Máximo permitido: R$ ${maxAllowed.toFixed(2)} (${categoryLimits[expense.categor
         expenseForm.reset();
     } catch (error) {
         console.error('Erro ao adicionar despesa:', error);
-        alert('Erro ao salvar despesa. Tente novamente.');
     }
 });
 
@@ -150,20 +170,18 @@ function calculateRemainingBudget(income, expenses) {
 function addExpenseToTable(expense) {
     const row = document.createElement('tr');
     row.innerHTML = `
-        <td data-label="Nome">${expense.name}</td>
-        <td data-label="Valor">R$ ${expense.amount.toFixed(2)}</td>
-        <td data-label="Categoria"><span class="category-badge">${expense.category}</span></td>
-        <td data-label="Data">${new Date(expense.date).toLocaleDateString('pt-BR')}</td>
-        <td data-label="Ações" class="expense-actions">
-            <button class="btn btn-danger delete-btn" onclick="deleteExpense('${expense.id}')">Excluir</button>
-        </td>
+        <td>${expense.name}</td>
+        <td>R$ ${expense.amount.toFixed(2)}</td>
+        <td>${expense.category}</td>
+        <td>${new Date(expense.date).toLocaleDateString('pt-BR')}</td>
+        <td><button onclick="deleteExpense('${expense.id}')">Excluir</button></td>
     `;
     expenseTableBody.appendChild(row);
 }
 
 // Função para excluir despesa
 window.deleteExpense = async (expenseId) => {
-    if (confirm('Tem certeza que deseja excluir esta despesa?')) {
+    if (confirm('Deseja excluir esta despesa?')) {
         try {
             await expensesRef.doc(expenseId).delete();
         } catch (error) {
@@ -171,10 +189,3 @@ window.deleteExpense = async (expenseId) => {
         }
     }
 };
-
-// Carregar dados iniciais
-budgetRef.get().then(doc => {
-    if (!doc.exists) {
-        budgetRef.set({ income: 0 });
-    }
-});
