@@ -43,7 +43,10 @@ const categoryLimits = {
     'Terapia': 0.05,
     'Streaming': 0.02,
     'Barbeiro': 0.02,
-    'Lazer': 0.05
+    'Lazer': 0.05,
+    'Investimento': 0.15,
+    'Outros': 0.03,
+
 };
 
 // Função para atualizar a tabela de categorias
@@ -147,8 +150,9 @@ expenseForm.addEventListener('submit', async (e) => {
     const currentTotal = window.categoryTotals?.[expense.category] || 0;
 
     if ((currentTotal + expense.amount) > maxAllowed) {
-        alert(`Limite da categoria ${expense.category} excedido!`);
-        return;
+        if (!confirm(`Atenção: Você está excedendo o limite recomendado para ${expense.category}! Deseja continuar?`)) {
+            return;
+        }
     }
 
     try {
